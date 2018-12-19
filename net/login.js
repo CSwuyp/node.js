@@ -72,6 +72,7 @@ io.on('connection', function (socket) {
 		}
 	}, 1000);*/
 	//注册事件
+    console.log("New connection from ", socket.request.connection.remoteAddress );
 	socket.on('register_client',function(data){
 		var  addSql = 'INSERT INTO user(account,password) VALUES(?,?)';
 		console.log(data);
