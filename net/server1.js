@@ -47,89 +47,87 @@ var connection = mysql.createConnection({
  
 connection.connect();
 
-server.listen(3000);
+server.listen(8000);
 io.on('connection', function (socket) {
-	console.log('websocket has connected')
+	console.log('websocket has connected');
 	var VerificationCode;//验证码
-	var Account=0;
-	/*const countDown = (second) => {
-	const s = second % 60;
-	const m = Math.floor(second / 60);
-
-	return `${`00${m}`.slice(-2)} : ${`00${s}`.slice(-2)}`;
-	};
-
-	let time = 5 * 60;
-
-	const timer = setInterval(() => {
-	const show = countDown(time--);
-	//console.log(show);
-	if(time < 0) {
-		console.log('倒计时结束！');
-		VerificationCode=-1;
-		console.log(VerificationCode);
-		clearInterval(timer);
-		}
-	}, 1000);*/
+	var Account;
 	//注册事件
     console.log("New connection from :" + socket.request.connection.remoteAddress);
-	
+	var str=socket.request.connection.remoteAddress;
+	var Ip=str.replace(/[^0-9]/ig,""); 
 	//自动登录事件
 	socket.on('login_client',function(data){
+		
 		//var SelectAccount='select account from user where UserIp='+socket.request.connection.remoteAddress;
 		//找出该IP最近登录的账号是哪个
-		var SelectAccount='select account from user where LoginTime in (select min(LoginTime) from user where UserIp=)'+socket.request.connection.remoteAddress;
-		var SelectSocketId='select SocketId from user where account='+Account;
-		var UpdateSocketId='update user set SocketId=?,LoginTime=? where account='+Account;
-		connection.query(SelectAccount,function(err,result){
-			if(err){
-				console.log('[SelectAccount err]-',err,message);
-				return;
-			}
-			if(result==''){
-				socket.emit('login_server',{message:'404'});
-			}
-			else{
-				Account=result[0].account;//取出玩家的账号
-				//socket.emit('login_server',{message:'200'});
-			}
-		});
-		//断开旧的套接字的连接
-		connection.query(SelectSocketId,function(err,result){
-			if(err){
-				console.log('[SelectSocketId err]-',err.message);
-				return;
-			}
-			console.log('数据库中socket.id:',result[0].SocketId);
-				//断开旧的套接字的连接
-				if (io.sockets.connected[result[0].SocketId]) {
-					io.sockets.connected[result[0].SocketId].disconnect();
-					logger.write(Account);
-					logger.write(':账号多地同时登录，先登录者被迫下线\n');
+		
+		var SelectAccount = 'select account from user where LoginTime in (select max(LoginTime) from user where UserIp='+Ip+')';
+		
+		if(data.flag==='1'){
+			console.log('进入login_client');
+			console.log(socket.request.connection.remoteAddress);
+			connection.query(SelectAccount,function(err,result){
+				if(err){
+					console.log('[SelectAccount err]-',err.message);
+					return;
 				}
-		});
-		var myDate = new Date();
-		//把新的套接字id和登录时间存入数据库
-		var UpdateSum=[socket.id,myDate.getTime()];
-		connection.query(UpdateSocketId,UpdateSum,function(err,result){
-			if(err){
-				console.log('[UpdateSocketId]-',err.message);
-				return;
-			}
-		});
-		logger.write(Account);
-		logger.write(':帐号登录成功\n');
-		console.log(Account,'登录成功');
-		socket.emit('login_server',{message:'200'});
+				console.log(result);
+				if(result==''){
+					socket.emit('login_server',{message:'404'});
+				}
+				else{
+					Account=result[0].account;//取出玩家的账号
+					var SelectSocketId='select SocketId from user where account='+Account;
+					var UpdateSocketId='update user set SocketId=?,LoginTime=? where account='+Account;
+					//断开旧的套接字的连接
+					connection.query(SelectSocketId,function(err,result){
+						if(err){
+							console.log('[SelectSocketId err]-',err.message);
+							return;
+						}
+						console.log("里",Account);
+						console.log('数据库中socket.id:',result[0].SocketId);
+						//断开旧的套接字的连接
+						if (io.sockets.connected[result[0].SocketId]) {
+							io.sockets.connected[result[0].SocketId].disconnect();
+							logger.write(Account);
+							logger.write(':账号多地同时登录，先登录者被迫下线\n');
+						}
+					});
+					var myDate = new Date();
+					//把新的套接字id和登录时间存入数据库
+					var UpdateSum=[socket.id,myDate.getTime()];
+					connection.query(UpdateSocketId,UpdateSum,function(err,result){
+						if(err){
+							console.log('[UpdateSocketId]-',err.message);
+							return;
+						}
+					});
+					logger.write(Account);
+					logger.write(':帐号登录成功\n');
+					console.log(Account,'登录成功');
+					socket.emit('login_server',{message:'200'});
+				}
+			});
+			
+			
+			
+			//logger.write(Account);
+			//logger.write(':帐号登录成功\n');
+			//console.log(Account,'登录成功');
+			//socket.emit('login_server',{message:'200'});
+		}
 	});
 	
 	socket.on('register_client',function(data){
 		var  addAccount = 'INSERT INTO user(account,UserIp,LoginTime,SocketId) VALUES(?,?,?,?)';
-		var SelectAccount='select * from user account='+data.account;
+		var SelectAccount='select * from user where account='+data.account;
 		console.log(data);
 		var myDate = new Date();
-		var  addSqlParams = [data.account,socket.request.connection.remoteAddress,myDate.getTime(),socket.id];
+		var  addSqlParams = [data.account,Ip,myDate.getTime(),socket.id];
 		if(data.code!=VerificationCode||data.code==-1){
+			console.log('验证码错误\n');
 			logger.write(data.account);
 			logger.write(':验证码错误\n');
 			socket.emit('register_server',{message:'406'});
@@ -147,8 +145,8 @@ io.on('connection', function (socket) {
 					connection.query(addAccount,addSqlParams,function (err, result) {
 						if(err){
 							console.log('[INSERT ERROR] - ',err.message);
-							logger.write(err.message);
-							logger.write('\n');
+							//logger.write(err.message);
+							//logger.write('\n');f
 							return;//如果失败了就直接return不会继续下面的代码
 						}
 						socket.emit('register_server',{message:'200'});
@@ -163,7 +161,7 @@ io.on('connection', function (socket) {
 					console.log(data.account,':帐号登录成功\n');
 					logger.write(data.account);
 					logger.write('帐号登录成功\n');
-					Account.data.account;
+					Account=data.account;
 				}
 			});
 			
@@ -207,120 +205,17 @@ io.on('connection', function (socket) {
 		ssender.sendWithParam(86, phoneNumbers[0], templateId,params, smsSign, "", "", callback);  // 签名参数未提供或者为空时，会使用默认签名发送短信	
 	});
 	
-	//登录事件
-	/*var Account=0;
-	socket.on('login_client',function(data){
-		var SelectAccount='select* from user where account='+data.account;
-		var SelectSQL = "select account,password from user where account = '"+data.account+"' and password = '"+data.password+"'";
-		var SelectFlag="select flag from user where account="+data.account;
-		var UpdateFlag='update user set flag=? where account='+data.account;
-		connection.query(SelectAccount,function(err,result){
-			if(err){
-				console.log('[login error]-',err.message);
-				return;
-			}
-			if(result==''){
-				logger.write(data.account);
-				logger.write(':帐号未注册\n');
-				//logger.write(data);
-				//logger.write('\n');
-				console.log('帐号未注册');
-				socket.emit('login_server',{message:'404'});
-				return;
-			}
-			else
-			{
-				connection.query(SelectSQL,function (err, result) {
-					if(err){
-						//logger.write('[login error]-');
-						//logger.write(err.message);
-						//logger.write('\n');
-						console.log('[login ERROR] - ',err.message);
-						return;
-					}
-						//console.log(result);
-					if(result=='')
-					{
-						logger.write(data.account);
-						logger.write(':帐号输入的密码错误\n');
-						console.log("密码错误");
-						socket.emit('login_server',{message:'406'});
-						return;
-					}
-					else//如果检测到用户已经在线则把前面的逼迫下线，同时把当前用户账号登录，并把当前的socket.id记录入数据库
-					{
-						connection.query(SelectFlag,function (err, result) {
-							if(err){
-								console.log('[login ERROR] - ',err.message);
-								return;
-							}
-							console.log('数据库中socket.id:',result[0].flag);
-							//断开旧的套接字的连接
-							if (io.sockets.connected[result[0].flag]) {
-								io.sockets.connected[result[0].flag].disconnect();
-								logger.write(data.account);
-								logger.write(':账号被逼下线\n');
-							}
-						});
-						console.log('新的socket.id:',socket.id);
-						//把新的套接字id存入数据库
-						connection.query(UpdateFlag,socket.id,function(err,result){
-							if(err){
-								console.log('[update error]-',err.message);
-								return;
-							}
-						});
-						logger.write(data.account);
-						logger.write(':账号登录成功\n');
-						console.log("登陆成功");
-						Account=data.account;
-						socket.emit('login_server',{message:'200'});
-						return;
-					}
-				}); 
-			}
-		});	
-	});
-	*/
-	//修改密码事件
-	socket.on('password_client',function(data){
-		var UpdatePassword='update user set password=? where account='+data.account;
-		var Upassword=[data.password];
-		if(data.code==VerificationCode&&data.code!=-1){
-			connection.query(UpdatePassword,Upassword,function(err,result){
-				if(err){
-					console.log('[update error]-',err.message);
-					return;
-				}
-				logger.write(data.account);
-				logger.write(':帐号修改密码成功');
-				socket.emit('password_server',{message:'修改密码成功'});
-				return;
-			});
-		}
-		else{
-			logger.write(data.account);
-			logger.write(':输入验证码错误，修改密码失败');
-			socket.emit('password_server',{message:'验证码错误'});
-			return;
-		}
-	});
-	
-	//判断是否断开连接
-	/*socket.on('disconnect',function(data){
-		console.log(data+'-disconnect');
-	});*/
 	//首次登录给用户起名字
 	socket.on('name_client',function(data){
 		var SelectName='select name from user where account='+Account;
-		connection.query(SelectAccount,function(err,result){
+		connection.query(SelectName,function(err,result){
 			if(err){
-				console.log('[login error]-',err.message);
+				console.log('[SelectName error]-',err.message);
 				return;
 			}
 			if(result=='')
 			{
-				socket.emit('name_server',{message:"用户未起名字"});
+				socket.emit('name_server',{message:"404"});
 			}
 		});
 	});
