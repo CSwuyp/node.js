@@ -61,10 +61,7 @@ io.on('connection', function (socket) {
 		
 		//var SelectAccount='select account from user where UserIp='+socket.request.connection.remoteAddress;
 		//找出该IP最近登录的账号是哪个
-		
 		var SelectAccount = 'select account from user where LoginTime in (select max(LoginTime) from user where UserIp='+Ip+')';
-		
-		if(data.flag==='1'){
 			console.log('进入login_client');
 			console.log(socket.request.connection.remoteAddress);
 			connection.query(SelectAccount,function(err,result){
@@ -108,6 +105,18 @@ io.on('connection', function (socket) {
 					logger.write(':帐号登录成功\n');
 					console.log(Account,'登录成功');
 					socket.emit('login_server',{message:'200'});
+					var SelectName='select name from user where account='+Account;
+					connection.query(SelectName,function(err,result){
+						if(err){
+							console.log('[SelectName error]-',err.message);
+							return;
+						}
+						console.log(result[0].name);
+						if(result[0].name==null)
+						{
+							socket.emit('name_server',{name:"404"});
+						}
+					});
 				}
 			});
 			
@@ -117,7 +126,6 @@ io.on('connection', function (socket) {
 			//logger.write(':帐号登录成功\n');
 			//console.log(Account,'登录成功');
 			//socket.emit('login_server',{message:'200'});
-		}
 	});
 	
 	socket.on('register_client',function(data){
@@ -154,6 +162,18 @@ io.on('connection', function (socket) {
 						logger.write(data.account);
 						logger.write('帐号注册登录成功\n');
 						Account=data.account;
+						var SelectName='select name from user where account='+Account;
+						connection.query(SelectName,function(err,result){
+							if(err){
+								console.log('[SelectName error]-',err.message);
+								return;
+							}
+							console.log(result[0].name);
+							if(result[0].name==null)
+							{
+								socket.emit('name_server',{name:"404"});
+							}
+						});
 					});
 				}
 				else{
@@ -162,11 +182,24 @@ io.on('connection', function (socket) {
 					logger.write(data.account);
 					logger.write('帐号登录成功\n');
 					Account=data.account;
+					var SelectName='select name from user where account='+Account;
+					connection.query(SelectName,function(err,result){
+						if(err){
+							console.log('[SelectName error]-',err.message);
+							return;
+						}
+						console.log(result[0].name);
+						if(result[0].name==null)
+						{
+							socket.emit('name_server',{name:"404"});
+						}
+					});
 				}
 			});
 			
 		}
 	});
+	
 	
 	//验证码,验证码可以用于登录或者注册，如果还未注册就给注册并登录，如果已经注册了就登录
 	socket.on('code_client',function(data){
@@ -205,20 +238,11 @@ io.on('connection', function (socket) {
 		ssender.sendWithParam(86, phoneNumbers[0], templateId,params, smsSign, "", "", callback);  // 签名参数未提供或者为空时，会使用默认签名发送短信	
 	});
 	
-	//首次登录给用户起名字
-	socket.on('name_client',function(data){
-		var SelectName='select name from user where account='+Account;
-		connection.query(SelectName,function(err,result){
-			if(err){
-				console.log('[SelectName error]-',err.message);
-				return;
-			}
-			if(result=='')
-			{
-				socket.emit('name_server',{message:"404"});
-			}
-		});
-	});
+	
+	//判断能否进入该关卡，如果能就把关卡信息发送给客户端，如果不能就不给玩家进入该关卡
+	/*socket.on('level_client',function(data){
+		var 
+	});*/
 	
 	//关卡结算
 	//客户端把玩家通关数据一次性发给服务端，

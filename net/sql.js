@@ -26,25 +26,19 @@ connection.connect();
 	var VerificationCode;//验证码
 	var Account=11;
 	//注册事件
-	
+	var data=1;
 	//自动登录事件
-		
-		//var SelectAccount='select account from user where UserIp='+socket.request.connection.remoteAddress;
-		//找出该IP最近登录的账号是哪个
-		//var SelectAccount="select account from user where LoginTime in (select max(LoginTime) from user where UserIp='"+socket.request.connection.remoteAddress+"')'";
-		var SelectAccount = 'select account from user where LoginTime in (select max(LoginTime) from user where UserIp='+19216835221+')';
-		//var SelectAccount='select account from user where UserIp='+socket.request.connection.remoteAddress;
-		//var SelectSQL = "select account,password from user where account = '"+data.account+"' and password = '"+data.password+"'";
-		//var SelectSocketId='select SocketId from user where account='+Account;
-		//var UpdateSocketId='update user set SocketId=?,LoginTime=? where account='+Account;
-		console.log('fsdfs');
-		connection.query(SelectAccount,function(err,result){
+		var data=1;
+		var SelectName='select name from user where account='+Account;
+		connection.query(SelectName,function(err,result){
 			if(err){
-				console.log('[SelectAccount err]-',err.message);
+				console.log('[SelectName error]-',err.message);
 				return;
 			}
-			console.log(result);
+			console.log(result[0].name);
+			if(result[0].name==null&&data==1)
+			{
+				console.log('404');
+			}
 		});
-		
-		console.log('fdsd');
 	
