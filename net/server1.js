@@ -116,6 +116,9 @@ io.on('connection', function (socket) {
 						{
 							socket.emit('name_server',{name:"404"});
 						}
+						else{
+							socket.emit('name_server',{name:result[0].name});
+						}
 					});
 				}
 			});
@@ -134,6 +137,7 @@ io.on('connection', function (socket) {
 		console.log(data);
 		var myDate = new Date();
 		var  addSqlParams = [data.account,Ip,myDate.getTime(),socket.id];
+		
 		if(data.code!=VerificationCode||data.code==-1){
 			console.log('验证码错误\n');
 			logger.write(data.account);
@@ -173,6 +177,9 @@ io.on('connection', function (socket) {
 							{
 								socket.emit('name_server',{name:"404"});
 							}
+							else{
+								socket.emit('name_server',{name:result[0].name});
+							}
 						});
 					});
 				}
@@ -182,7 +189,30 @@ io.on('connection', function (socket) {
 					logger.write(data.account);
 					logger.write('帐号登录成功\n');
 					Account=data.account;
+					var SelectSocketId='select SocketId from user where account='+Account;
+					connection.query(SelectSocketId,function(err,result){
+						if(err){
+							console.log('[SelectSocketId err]-',err.message);
+							return;
+						}
+						console.log("里",Account);
+						console.log('数据库中socket.id:',result[0].SocketId);
+						//断开旧的套接字的连接
+						if (io.sockets.connected[result[0].SocketId]) {
+							io.sockets.connected[result[0].SocketId].disconnect();
+							logger.write(Account);
+							logger.write(':账号多地同时登录，先登录者被迫下线\n');
+						}
+					});
+					var UpdateIp='update user set UserIp=?,LoginTime=?,SocketId=? where account='+Account;
 					var SelectName='select name from user where account='+Account;
+					var UpIp=[Ip,myDate.getTime(),socket.id];
+					connection.query(UpdateIp,UpIp,function(err,result){
+						if(err){
+							console.log('[UpdateIp error]-',err.message);
+							return;
+						}
+					});
 					connection.query(SelectName,function(err,result){
 						if(err){
 							console.log('[SelectName error]-',err.message);
@@ -192,6 +222,9 @@ io.on('connection', function (socket) {
 						if(result[0].name==null)
 						{
 							socket.emit('name_server',{name:"404"});
+						}
+						else{
+							socket.emit('name_server',{name:result[0].name});
 						}
 					});
 				}
@@ -238,6 +271,18 @@ io.on('connection', function (socket) {
 		ssender.sendWithParam(86, phoneNumbers[0], templateId,params, smsSign, "", "", callback);  // 签名参数未提供或者为空时，会使用默认签名发送短信	
 	});
 	
+	socket.on('name_client',function(data){
+		if(data.name){
+			var AddName='update user set name=? where account='+Account;
+			connection.query(AddName,data.name,function(err,result){
+				if(err){
+					console.log('[AddName err]-',err.message);
+					return;
+				}
+			});
+		}
+		
+	});
 	
 	//判断能否进入该关卡，如果能就把关卡信息发送给客户端，如果不能就不给玩家进入该关卡
 	/*socket.on('level_client',function(data){
