@@ -304,6 +304,19 @@ io.on('connection', function (socket) {
 	//var star2=0;//章程2的星级
 	//var star3=0;//章程3的星级
 	//var star4=0;//章程4的星级
+	
+	//更新出战队列
+	socket.on('hero_client',function(data){
+		var UpdateHero='update user set hero1=?,hero2=?hero3=? where account='+Account;
+		var Uhero=[data.hero1,data.hero2,data.hero3];
+		connection.query(UpdateHero,Uhero,function(err,result){
+			if(err){
+				console.log('[UpdateHero err]-',err.message);
+				return;
+			}
+		});
+	});
+	
 	socket.on('battle_client',function(data){
 		var arraygoods = new Array();//数组存放奖励物品id
 		var arraynum=new Array();//数组存放奖励物品数量
@@ -311,12 +324,12 @@ io.on('connection', function (socket) {
 		var arraystarname=new Array('满足第一颗星星','满足第二颗星星','满足第三颗星星');
 		var arraystarflag=new Array();
 		var starsum=0;
-		var goods=0;
+		var goods;
 		var goodsnum=0;
 		var num=0;
 		var exp1=0;
 		var coin1=0;
-		var UserGrade=0; 
+		var UserGrade=0;
 		var LevelExp=[[400,500,600],[800,1000,1200],[2500,3000,3500],
 					  [3500,4500,5500],[5000,6500,8000],[7000,9000,11000],
 					  [8000,10000,12000],[9500,12000,14500],[13000,16000,19000],
@@ -333,8 +346,12 @@ io.on('connection', function (socket) {
 		var FirstCoin=[600,1000,2000,3000,4000,6000,8000,10000,15000,20000,25000,40000,60000];
 		//角色和玩家升级所需经验值
 		var arrayexp=new Array(0,0,300,900,2700,6500,14000,23000,34000,48000,64000,85000,100000,120000,140000,165000,195000,225000,265000,305000,355000);//存放等级
+		//首通武器奖励
+		var FirstWeapon=[101,301,502,503,701,702,702,1002,1003,1302,1502,1503,1803];//武器
+		//固定掉落书籍
+		var ArrayBook=[6,10,40,50,75,100,125,150,200,250,300,400,600];
 		var SelectLevel='select level_id from user_level where account='+Account;
-		var SelectStar='select start  form user_level where account='+Account+'and level_id='+data.level;
+		var SelectStar='select star form user_level where account='+Account+'and level_id='+data.level;
 		var AddLevel='insert into user_level(account,level_id,star) values(?,?,?)';
 		var UpdateStar='update user_level set star=?where account='+Account+'and level_id='+data.level;
 		var SelectMaxLevel='select max(level_id) from user_level where account='+Account;
@@ -346,9 +363,10 @@ io.on('connection', function (socket) {
 		var UpdateExp='update user set exp_now=? where account='+Account;
 		var UpdateCoin='update user set coin=coin+'+coin1+'where account='+Account;
 		var SelectGrade='select grade from user where account='+Account; 
+		var SelectHero='select hero1,hero2,hero3 from user where account='+Account;
 		//判断是否能进入该关卡
 		var access=0;
-		if(data.level==1){
+		if(data.level=='1'){
 			access=1;
 		}
 		else{
@@ -368,37 +386,361 @@ io.on('connection', function (socket) {
 		}
 		//如果能进入该关卡并且胜利
 		if(access==1&&data.victory==yes){
+			var star=1;
+			//通关就可以拿到一颗星
+			arraystarflag.push(1);
 			//计算每小关通过星级
-			//满足第一颗小星
-			var star1=0;
+			if(data.level=='1'){
+				//判断是否满足第二颗星,队伍中有薇薇安
+				var star2=0;
+				connection.query(SelectHero,function(err,result){
+					if(err){
+						console.log('[SelectHero err]-',err.message);
+						return;
+					}
+					if(result[0].hero1=='薇薇安id'){
+						star2=1;
+					}
+					else if(result[0].hero2==''){
+						star2=1
+					}
+					else if(result[0].hero3==''){
+						star2=1;
+					}
+					
+				});
+				if(star2==1){
+					arraystarflag.push(1);
+					star+=star2;
+				}
+				else{
+					arraystarflag.push(0);
+				}
+				//判断是否满足第三颗星,因为网络有时延所以判断通关时间在客户端那边计算
+				if(data.time<10){
+					arraystarflag.push(1);
+					star+=1;
+				}
+				else{
+					arraystarflag.push(0);
+				}
+			}
 			
-			//判断是否满足第一颗星
+			if(data.level=='2'){
+				//计算每小关通过星级
+				
+				var star2=0;
+				//判断是否满足第二颗星
+				
+				if(star2==1){
+					arraystarflag.push(1);
+					star+=star2;
+				}
+				else{
+					arraystarflag.push(0);
+				}
+				var star3=0;
+				//判断是否满足第三颗星
+				
+				if(star3==1){
+					arraystarflag.push(1);
+					star+=1;
+				}
+				else{
+					arraystarflag.push(0);
+				}
+			}
+			if(data.level=='3'){
+				//计算每小关通过星级
+				var star2=0;
+				//判断是否满足第二颗星
+				
+				if(star2==1){
+					arraystarflag.push(1);
+					star+=star2;
+				}
+				else{
+					arraystarflag.push(0);
+				}
+				var star3=0;
+				//判断是否满足第三颗星
+				
+				if(star3==1){
+					arraystarflag.push(1);
+					star+=1;
+				}
+				else{
+					arraystarflag.push(0);
+				}
+			}
+			if(data.level=='4'){
+				//计算每小关通过星级
+				//判断是否满足第二颗星
+				var star2=0;
+				connection.query(SelectHero,function(err,result){
+					if(err){
+						console.log('[SelectHero err]-',err.message);
+						return;
+					}
+					if(result[0].hero1=='莉可丽丝id'){
+						star2=1;
+					}
+					else if(result[0].hero2=='莉可丽丝id'){
+						star2=1
+					}
+					else if(result[0].hero3=='莉可丽丝id'){
+						star2=1;
+					}
+					
+				});
+				if(star2==1){
+					arraystarflag.push(1);
+					star+=1;
+				}
+				else{
+					arraystarflag.push(0);
+				}
+				var star3=0;
+				//判断是否满足第三颗星
+				
+				if(star3==1){
+					arraystarflag.push(1);
+					star+=1;
+				}
+				else{
+					arraystarflag.push(0);
+				}
+			}
+			if(data.level=='5'){
+				//计算每小关通过星级	
+				var star2=0;
+				//判断是否满足第二颗星
+				
+				if(star2==1){
+					arraystarflag.push(1);
+					star+=1;
+				}
+				else{
+					arraystarflag.push(0);
+				}
+				var star3=0;
+				//判断是否满足第三颗星
+				
+				if(star3==1){
+					arraystarflag.push(1);
+					star+=1;
+				}
+				else{
+					arraystarflag.push(0);
+				}
+			}
+			if(data.level=='6'){
+				//计算每小关通过星级	
+				var star2=0;
+				//判断是否满足第二颗星
+				
+				if(star2==1){
+					arraystarflag.push(1);
+					star+=1;
+				}
+				else{
+					arraystarflag.push(0);
+				}
+				var star3=0;
+				//判断是否满足第三颗星
+				
+				if(star3==1){
+					arraystarflag.push(1);
+					star+=1;
+				}
+				else{
+					arraystarflag.push(0);
+				}
+			}
 			
-			if(start1==1){
-				arraystarflag.push(1);
-			}
-			else{
-				arraystarflag.push(0);
+			if(data.level=='7'){
+				//计算每小关通过星级
+				var star2=0;
+				//判断是否满足第二颗星
+				connection.query(SelectHero,function(err,result){
+					if(err){
+						console.log('[SelectHero err]-',err.message);
+						return;
+					}
+					if(result[0].hero1=='美杜莎id'){
+						star2=1;
+					}
+					else if(result[0].hero2=='美杜莎id'){
+						star2=1
+					}
+					else if(result[0].hero3=='美杜莎id'){
+						star2=1;
+					}
+					
+				});
+				if(star2==1){
+					arraystarflag.push(1);
+					star+=1;
+				}
+				else{
+					arraystarflag.push(0);
+				}
+				var star3=0;
+				//判断是否满足第三颗星
+				
+				if(star3==1){
+					arraystarflag.push(1);
+					star+=1;
+				}
+				else{
+					arraystarflag.push(0);
+				}
 			}
 			
-			var star2=0;
-			//判断是否满足第二颗星
+			if(data.level=='8'){
+				//计算每小关通过星级
+				var star2=0;
+				//判断是否满足第二颗星
+				
+				if(star2==1){
+					arraystarflag.push(1);
+					star+=1;
+				}
+				else{
+					arraystarflag.push(0);
+				}
+				var star3=0;
+				//判断是否满足第三颗星
+				
+				if(star3==1){
+					arraystarflag.push(1);
+					star+=1;
+				}
+				else{
+					arraystarflag.push(0);
+				}
+			}
 			
-			if(star2==1){
-				arraystarflag.push(1);
+			if(data.level=='9'){
+				//计算每小关通过星级
+				var star2=0;
+				//判断是否满足第二颗星
+				
+				if(star2==1){
+					arraystarflag.push(1);
+					star+=1;
+				}
+				else{
+					arraystarflag.push(0);
+				}
+				var star3=0;
+				//判断是否满足第三颗星
+				
+				if(star3==1){
+					arraystarflag.push(1);
+					star+=1;
+				}
+				else{
+					arraystarflag.push(0);
+				}
 			}
-			else{
-				arraystarflag.push(0);
-			}
-			var star3=0;
-			//判断是否满足第三颗星
 			
-			if(star3==1){
-				arraystarflag.push(1);
+			if(data.level=='10'){
+				//计算每小关通过星级
+				var star2=0;
+				//判断是否满足第二颗星
+				
+				if(star2==1){
+					arraystarflag.push(1);
+					star+=1;
+				}
+				else{
+					arraystarflag.push(0);
+				}
+				var star3=0;
+				//判断是否满足第三颗星
+				
+				if(star3==1){
+					arraystarflag.push(1);
+					star+=1;
+				}
+				else{
+					arraystarflag.push(0);
+				}
 			}
-			else{
-				arraystarflag.push(0);
+			
+			if(data.level=='11'){
+				//计算每小关通过星级
+				var star2=0;
+				//判断是否满足第二颗星
+				
+				if(star2==1){
+					arraystarflag.push(1);
+					star+=1;
+				}
+				else{
+					arraystarflag.push(0);
+				}
+				var star3=0;
+				//判断是否满足第三颗星
+				
+				if(star3==1){
+					arraystarflag.push(1);
+					star+=1;
+				}
+				else{
+					arraystarflag.push(0);
+				}
 			}
+			
+			if(data.level=='12'){
+				//计算每小关通过星级
+				var star2=0;
+				//判断是否满足第二颗星
+				
+				if(star2==1){
+					arraystarflag.push(1);
+					star+=1;
+				}
+				else{
+					arraystarflag.push(0);
+				}
+				var star3=0;
+				//判断是否满足第三颗星
+				
+				if(star3==1){
+					arraystarflag.push(1);
+					star+=1;
+				}
+				else{
+					arraystarflag.push(0);
+				}
+			}
+			
+			if(data.level=='13'){
+				//计算每小关通过星级
+				var star2=0;
+				//判断是否满足第二颗星
+				
+				if(star2==1){
+					arraystarflag.push(1);
+					star+=1;
+				}
+				else{
+					arraystarflag.push(0);
+				}
+				var star3=0;
+				//判断是否满足第三颗星
+				
+				if(star3==1){
+					arraystarflag.push(1);
+					star+=1;
+				}
+				else{
+					arraystarflag.push(0);
+				}
+			}
+			
 			
 			connection.query(SelectLevel,function(err,result){
 				if(err){
@@ -407,11 +749,11 @@ io.on('connection', function (socket) {
 				}
 				//首通
 				if(result==''){
-					goods=101;
-					arraygoods.push(101);
+					goods=FirstWeapon[data.level];
+					arraygoods.push(FirstWeapon[data.level]);
 					arraynum.push(1);
-					exp1+=300;
-					coin1+=600;
+					exp1+=FirstExp[data.level];
+					coin1+=FirstCoin[data.level];
 					//颁发首通奖励,告诉客户端奖励信息
 					//socket.emit('battle_server',{:goodsnum})
 					//把奖励物品录入数据库背包中,先查看数据库中是否有这个物品如果有则更新物品数量，如果没有就插入数据
@@ -420,7 +762,7 @@ io.on('connection', function (socket) {
 							console.log('[SelectGoods err]-',err.message);
 							return;
 						}
-						if(result>0){
+						if(result[0].godds_count>0){
 							num=1;
 							connection.query(UpdateGoods,function(err,result){
 								if(err){
@@ -442,7 +784,7 @@ io.on('connection', function (socket) {
 					});
 					
 					//把首通获得星级记录入数据库
-					var addl=[Account,1,star1];
+					var addl=[Account,data.level,star1];
 					connection.query(AddLevel,addl,function(err,result){
 						if(err){
 							console.log('[insert error]-',err.message);
@@ -451,6 +793,7 @@ io.on('connection', function (socket) {
 					});
 					socket.emit('battle_server',{flag:'首通奖励'});
 				}
+				
 				//非首通如果当前获得星级大于历史星级则把星级记录入数据库
 				else{
 					connection.query(SelectStar,function(err,result){
@@ -458,8 +801,8 @@ io.on('connection', function (socket) {
 							console.log('[SelectStar err]-',err.message);
 							return;
 						}
-						if(star1>result){
-							connection.query(UpdateStar,star1,function(err,result){
+						if(star>result[0].star){
+							connection.query(UpdateStar,star,function(err,result){
 								if(err){
 									console.log('[UpdateStar err]-',err.message);
 									return;
@@ -477,19 +820,165 @@ io.on('connection', function (socket) {
 				return rnd;
 			}
 			var num=RndNum(2);
-			if(num>=0&&num<=10)//10%掉落1级蓝色武器
-			{
-				arraygoods.push(101);
-				arraynum.push(1);
-				goods=101;
-				//socket.emit('battle_server',{weapon_id:goods});
-				//同时更新数据库背包中
+			//关卡1可能掉落
+			if(data.level=='1'){
+				if(num>0&&num<=10){//10%掉落1级蓝色武器
+					arraygoods.push(101);
+					arraynum.push(1);
+					goods=101;
+				}
+			}
+			//关卡2可能掉落
+			else if(data.level=='2'){
+				if(num>0&&num<=20){
+					arraygoods.push(301);
+					arraynum.push(1);
+					goods=301;
+				}
+			}
+			//关卡3可能掉落
+			else if(data.level=='3'){
+				if(num>0&&num<=30){
+					arraygoods.push(501);
+					arraynum.push(1);
+					goods=501;
+				}
+				else if(num>30&&num<=40){
+					arraygoods.push(502);
+					arraynum.push(1);
+					goods=502;
+				}
+			}
+			//关卡4可能掉落
+			else if(data.level=='4'){
+				if(num>0&&num<=30){
+					arraygoods.push(501);
+					arraynum.push(1);
+					goods=501;
+				}
+				else if(num>30&&num<=40){
+					arraygoods.push(502);
+					arraynum.push(1);
+					goods=502;
+				}
+			}
+			//关卡5可能掉落
+			else if(data.level=='5'){
+				if(num>0&&num<=40){
+					arraygoods.push(701);
+					arraynum.push(1);
+					goods=701;
+				}
+			}
+			//关卡6可能掉落
+			else if(data.level=='6'){
+				if(num>0&&num<=20){
+					arraygoods.push(701);
+					arraynum.push(1);
+					goods=701;
+				}
+				else if(num>20&&num<=40){
+					arraygoods.push(702);
+					arraynum.push(1);
+					goods=702;
+				}
+			}
+			//关卡7可能掉落
+			else if(data.level=='7'){
+				if(num>0&&num<=40){
+					arraygoods.push(702);
+					arraynum.push(1);
+					goods=702;
+				}
+			}
+			//关卡8可能掉落
+			else if(data.level=='8'){
+				if(num>0&&num<=30){
+					arraygoods.push(1001);
+					arraynum.push(1);
+					goods=1001;
+				}
+				else if(num>30&&num<=40){
+					arraygoods.push(1002);
+					arraynum.push(1);
+					goods=1002;
+				}
+			}
+			//关卡9可能掉落
+			else if(data.level=='9'){
+				if(num>0&&num<=30){
+					arraygoods.push(1002);
+					arraynum.push(1);
+					goods=1002;
+				}
+				else if(num==31){
+					arraygoods.push(1003);
+					arraynum.push(1);
+					goods=1003;
+				}
+			}
+			//关卡10可能掉落
+			else if(data.level=='10'){
+				if(num>0&&num<=30){
+					arraygoods.push(1301);
+					arraynum.push(1);
+					goods=1301;
+				}
+				else if(num>30&&num<=40){
+					arraygoods.push(1302);
+					arraynum.push(1);
+					goods=1302;
+				}
+				else if(num>40&&num<=45){
+					arraygoods.push(1303);
+					arraynum.push(1);
+					goods=1303;
+				}
+			}
+			//关卡11可能掉落
+			else if(data.level=='11'){
+				if(num>0&&num<=30){
+					arraygoods.push(1501);
+					arraynum.push(1);
+					goods=1501;
+				}
+				else if(num>30&&num<=40){
+					arraygoods.push(1502);
+					arraynum.push(1);
+					goods=1502;
+				}
+				else if(num==41){
+					arraygoods.push(1503);
+					arraynum.push(1);
+					goods=1503;
+				}
+			}
+			//关卡12可能掉落
+			else if(data.level=='12'){
+				if(num>0&&num<=20){
+					arraygoods.push(1501);
+					arraynum.push(1);
+					goods=1501;
+				}
+				else if(num>20&&num<=60){
+					arraygoods.push(1502);
+					arraynum.push(1);
+					goods=1502;
+				}
+				else if(num>60&&num<=80){
+					arraygoods.push(1503);
+					arraynum.push(1);
+					goods=1503;
+				}
+			}
+			//第13关无掉落
+			if(data.level<=12){
 				connection.query(SelectGoods,function(err,result){
 					if(err){
 						console.log('[SelectGoods err]-',err.message);
 						return;
 					}
-					if(result>0){
+					if(result[0].goods_count>0){
 						num=1;
 						connection.query(UpdateGoods,function(err,result){
 							if(err){
@@ -510,6 +999,7 @@ io.on('connection', function (socket) {
 					}
 				});
 			}
+			
 			//固定掉落奖励,同时更新数据库背包中
 			goods=6666;
 			connection.query(SelectGoods,function(err,result){
@@ -517,8 +1007,8 @@ io.on('connection', function (socket) {
 					console.log('[SelectGoods err]-',err.message);
 					return;
 				}
-				if(result>0){
-					num=6;
+				if(result[0].godds_count>0){
+					num=ArrayBook[data.level];
 					connection.query(UpdateGoods,function(err,result){
 						if(err){
 							console.log('[UpdateGoods]-',err.message);
@@ -527,7 +1017,7 @@ io.on('connection', function (socket) {
 					});
 				}
 				else{
-					num=6;
+					num=ArrayBook[data.level];
 					var addg=[Account,goods,num];
 					connection.query(AddGoods,addg,function(err,result){
 						if(err){
@@ -537,38 +1027,40 @@ io.on('connection', function (socket) {
 					});
 				}
 			});
-			arraygoods.push(6666);//掉落6本经验书
-			arraynum.push(6);
-			if(start1==1){
-				exp1+=400;
-				coin1+=800;
+			arraygoods.push(6666);//掉落经验书
+			arraynum.push(ArrayBook[data.level]);
+			
+			if(start==1){
+				exp1+=LevelExp[data.level][1];
+				coin1+=LevelCoin[data.level][1];
 				socket.emit('battle_server',{goods1:arraygoods,goods2:arraynum,star:start1,exp:exp1,coin:coin1});
 			}
-			if(start1==2){
-				exp1+=500;
-				coin1+=1000;
+			else if(start==2){
+				exp1+=LevelExp[data.level][2];
+				coin1+=LevelCoin[data.level][2];
 				socket.emit('battle_server',{goods1:arraygoods,goods2:arraynum,star:start1,exp:exp1,coin:coin1});
 			}
-			if(start1==2){
-				exp1+=600;
-				coin1+=1200;
+			else if(start==3){
+				exp1+=LevelExp[data.level][3];
+				coin1+=LevelCoin[data.level][3];
 				socket.emit('battle_server',{goods1:arraygoods,goods2:arraynum,star:start1,exp:exp1,coin:coin1});
 			}
 			var exp_temp=0
+			//查询玩家战斗前等级
 			connection.query(SelectGrade,function(){
 				if(err){
 					console.log('[SelectGrade err]-',err.message);
 					return;
 				}
 				arraygrade.push(result);
-			})
+			});
 			//查询玩家当前经验值，并把战斗所获经验加入，同时更新当前玩家等级
 			connection.query(SelectExp,function(err,result){
 				if(err){
 					console.log('[SelectExp err]-',err.message);
 					return;
 				}
-				var exp_temp=result+exp1;
+				exp_temp=result+exp1;
 			});
 			Uexp=[exp_temp];
 			connection.query(UpdateExp,Uexp,function(err,result){
@@ -604,4 +1096,167 @@ io.on('connection', function (socket) {
 		}
 		
 	});
+	
+	//章节奖励,首先是查询到目前为止最大通过关卡id，计算一个大关得到的星级总数，然后再查询是否已经领取章节奖励，如果未领取
+	//就告诉客户端可以领取，否则告诉客户端不能领取或已经领取，客户端领取后需要告诉服务端已经领取，服务端需要把领取的章节奖励做一个记录
+	socket.on('award_client',function(data){
+		var AwardWeaponStar6=[101,702,1002,1502];
+		var AwardWeaponStar9=[502,703,1003,1503];
+		var SelectMaxLevel='select max(level_id) from user_level where account='+Account;
+		var MaxLevel;
+		var LevelStar;
+		connection.query(SelectMaxLevel,function(err,result){
+			if(err){
+				console.log('[SelectMaxLevel err]-',err.message);
+				return;
+			}
+			MaxLevel=result[0].level_id;
+		});
+		
+		for(var i=1;i<=MaxLevel;i++){
+			var LevelId=parseInt(i/3);//计算属于第几大关
+			var SelectStar='select star from user_level where account='+Account+'and level_id='+i;
+			connection.query(SelectStar,function(err,result){
+				if(err){
+					console.log('[SelectStar err]-',err.message);
+					return;
+				}
+				LevelStar+=result[0].star;
+			});
+			if(LevelStar>=6){
+				var SelectAward='select award_star6 from award_level where account='+Account+'and level_id='+LevelId;
+				connection.query(SelectAward,function(err,result){
+					if(err){
+						console.log('[SelectAward err]-'.err.message);
+						return;
+					}
+					//如果找不到对应信息即还未领取，此时把信息记录入数据库
+					if(result[0].award_star6==''){
+						var AddAwardStart6='insert into award_level(account,level_id,award_star6)values(?,?,?)';
+						var AStar6=[Account,LevelId,1];
+						connection.query(AddAwardStart6,AStar6,function(err,result){
+							if(err){
+								console.log('[AddAwardStart6 err]-',err.message);
+								return;
+							}
+						});
+					}
+					else if(result[0].award_star6==0){//玩家已经领取过了该奖励
+						socket.emit('award_server',{level:LevelId,flag:'6404'});
+					}
+					if(result[0].award_star6==''||result[0].award_star6==1){
+						socket.emit('award_server',{level:LevelId,flag:'6'});
+					}
+				});
+			}
+			if(LevelStar==9){
+				var SelectAward='select award_star9 from award_level where account='+Account+'and level_id='+LevelId;
+				connection.query(SelectAward,function(err,result){
+					if(err){
+						console.log('[SelectAward err]-',err.message);
+						return;
+					}
+					//如果找不到对应信息即还未领取，如果领取了客户端需要告诉服务端
+					if(result[0].award_star9==null){
+						var UpdateAwardStart9='update award_level set award_star9=? where account='+Account+'and level_id='+LevelId;
+						connection.query(UpdateAwardStart9,1,function(err,result){
+							if(err){
+								console.log('[AddAwardStart6 err]-',err.message);
+								return;
+							}
+						});
+					}
+					else if(result[0].award_star9==0){//玩家已经领取过了该奖励
+						socket.emit('award_server',{level:LevelId,flag:'9404'});
+					}
+					//玩家还未领取，通知玩家可以领取
+					if(result[0].award_star9==null||result[0].award_star9==1){
+						socket.emit('award_server',{level:LevelId,flag:'9'});
+					}
+				});
+			}
+			if(i%3==0){
+				LevelStar=0;
+			}
+		}
+		//客户端打开了哪些章节奖励要告诉服务端,告诉服务端打开的大关id和星级数目
+		var UpdateAwardStart6='update award_level set award_star6=?where account='+Account+'and level_id='+data.level;
+		var UpdateAwardStart9='update award_level set award_star9=?where account='+Account+'and level_id='+data.level;
+		var num;
+		if(data.flag=='6'){
+			connection.query(UpdateAwardStart6,0,funtion(err,result){
+				if(err){
+					console.log('[UpdateAwardStart6 err]-',err.message);
+					return;
+				}
+			});
+			//把章节奖励信息告诉客户端并存入数据库中
+			skocket.emit('award_server',message:AwardWeaponStar6[data.level]);
+			var SelectGoods='select goods_count from bag where account='+Account+'goods_id='+AwardWeaponStar6[data.level];
+			var UpdateGoods='update bag set goods_count=godds_count+'+num+' where account='+Account+'and goods_id='+AwardWeaponStar6[data.level];
+			connection.query(SelectGoods,function(err,result){
+				if(err){
+					console.log('[SelectGoods err]-',err.message);
+					return;
+				}
+				if(result[0].goods_count>0){
+					num=1;
+					connection.query(UpdateGoods,function(err,result){
+						if(err){
+							console.log('[UpdateGoods]-',err.message);
+							return;
+						}
+					});
+				}
+				else{
+					num=1;
+					var addg=[Account,goods,num];
+					connection.query(AddGoods,addg,function(err,result){
+						if(err){
+							colsole.log('[AddGoods err]-',err.message);
+							return;
+						}
+					});
+				}
+			});
+		}
+		if(data.flag=='9'){
+			connection.query(UpdateAwardStart9,0,funtion(err,result){
+				if(err){
+					console.log('[UpdateAwardStart9 err]-',err.message);
+					return;
+				}
+			});
+			//把章节奖励信息告诉客户端并存入数据库中
+			skocket.emit('award_server',message:AwardWeaponStar9[data.level]);
+			var SelectGoods='select goods_count from bag where account='+Account+'goods_id='+AwardWeaponStar9[data.level];
+			var UpdateGoods='update bag set goods_count=godds_count+'+num+' where account='+Account+'and goods_id='+AwardWeaponStar9[data.level];
+			connection.query(SelectGoods,function(err,result){
+				if(err){
+					console.log('[SelectGoods err]-',err.message);
+					return;
+				}
+				if(result[0].goods_count>0){
+					num=1;
+					connection.query(UpdateGoods,function(err,result){
+						if(err){
+							console.log('[UpdateGoods]-',err.message);
+							return;
+						}
+					});
+				}
+				else{
+					num=1;
+					var addg=[Account,goods,num];
+					connection.query(AddGoods,addg,function(err,result){
+						if(err){
+							colsole.log('[AddGoods err]-',err.message);
+							return;
+						}
+					});
+				}
+			});
+		}
+	});
+	
 });
