@@ -305,8 +305,69 @@ io.on('connection', function (socket) {
 	//var star3=0;//章程3的星级
 	//var star4=0;//章程4的星级
 	
-	//更新出战队列
+	//进入游戏需要服务端告诉客户端的数据
+	
+	//背包事件，告诉客户端改玩家背包中有什么东西
+	socket.on('Bag_client',function(data){
+		//告诉该玩家背包中有什么东西
+		var SelectGoods='select goods_id,goods_count from bag where account='+Account;
+		connection.query(SelectGoods,function(err,result){
+			if(err){
+				console.log('[SelectGoods err]-',err.message);
+				return;
+			}
+			socket.emit('Bag_server',{bag:result});
+		});
+	});
+	
+	//进入角色页面告诉客户端当前所拥有的角色和角色的各种属性
 	socket.on('hero_client',function(data){
+		
+	});
+	
+	//角色升级
+	socket.on('RoleGrade_client',function(data){
+		//客户端告诉服务端现在要升级的角色id和使用的经验书数量
+		//先查询当前角色所拥有的经验，然后加上使用的经验书之后的经验，再查询数据库使用经验书之后
+		//应该有的等级，同时把新的等级和经验写入数据库
+		var RoleExp=data.RoleExp;//存放角色经验
+		var SelectRoleExp='select role_exp from users_roles where account='+Account+'role_id='+data.RoleId;
+		var UpdateRoleGrade='update users_roles set role_exp=?,role_grade=? where account='+Account+'and role_id='+data.RoleId;
+		var arrayexp=new Array(0,0,300,900,2700,6500,14000,23000,34000,48000,64000,85000,100000,120000,140000,165000,195000,225000,265000,305000,355000);//存放等级
+		var RoleGrade;//角色等级
+		connection.query(SelectRoleExp,function(err,result){
+			if(err){
+				console.log('[SelectRoleExp err]-',err.message);
+				return;
+			}
+			RoleExp+=result[0].role_exp;
+			//更新角色等级
+			for(i=1;i<arrayexp.length;i++)
+			{
+				if(RoleExp<arrayexp[i]){
+					RoleGrade=i-1;
+					break;
+				}
+			}
+			var UU=[RoleExp,RoleGrade];
+			connection.query(UpdateRoleGrade,UU,function(err,result){
+				if(err){
+					console.log('[UpdateRoleGrade err]-',err.message);
+					return;
+				}
+				socket.emit('RoleGrade_server',{message:RoleGrade});//告诉客户端操作后的等级
+			});
+		});
+	});
+	
+	//物品消耗
+	socket.on('GoodsConsume_client',function(){
+		//客户端告诉服务端要使用的物品id和数量，服务端先查看该玩家是否有对应的物品和数量如果有就允许使用
+		//同时更新数据库中的数据，如果没有就不允许使用并告诉客户端当前玩家实际的物品和数量，客户端对此作出
+		//更正
+	});
+	//更新出战队列
+	socket.on('HeroPlayed_client',function(data){
 		var UpdateHero='update user set hero1=?,hero2=?hero3=? where account='+Account;
 		var Uhero=[data.hero1,data.hero2,data.hero3];
 		connection.query(UpdateHero,Uhero,function(err,result){
@@ -317,6 +378,7 @@ io.on('connection', function (socket) {
 		});
 	});
 	
+	//判断能否进入关卡和关卡胜利结算
 	socket.on('battle_client',function(data){
 		var arraygoods = new Array();//数组存放奖励物品id
 		var arraynum=new Array();//数组存放奖励物品数量
@@ -349,7 +411,7 @@ io.on('connection', function (socket) {
 		//首通武器奖励
 		var FirstWeapon=[101,301,502,503,701,702,702,1002,1003,1302,1502,1503,1803];//武器
 		//固定掉落书籍
-		var ArrayBook=[6,10,40,50,75,100,125,150,200,250,300,400,600];
+		var ArrayBook=[27,54,165,240,345,480,540,645,870,1080,1272,1701,2700];
 		var SelectLevel='select level_id from user_level where account='+Account;
 		var SelectStar='select star form user_level where account='+Account+'and level_id='+data.level;
 		var AddLevel='insert into user_level(account,level_id,star) values(?,?,?)';
@@ -385,7 +447,7 @@ io.on('connection', function (socket) {
 			});
 		}
 		//如果能进入该关卡并且胜利
-		if(access==1&&data.victory==yes){
+		if(access==1&&data.victory=='yes'){
 			var star=1;
 			//通关就可以拿到一颗星
 			arraystarflag.push(1);
@@ -1184,14 +1246,14 @@ io.on('connection', function (socket) {
 		var UpdateAwardStart9='update award_level set award_star9=?where account='+Account+'and level_id='+data.level;
 		var num;
 		if(data.flag=='6'){
-			connection.query(UpdateAwardStart6,0,funtion(err,result){
+			connection.query(UpdateAwardStart6,0,function(err,result){
 				if(err){
 					console.log('[UpdateAwardStart6 err]-',err.message);
 					return;
 				}
 			});
 			//把章节奖励信息告诉客户端并存入数据库中
-			skocket.emit('award_server',message:AwardWeaponStar6[data.level]);
+			skocket.emit('award_server',{message:AwardWeaponStar6[data.level]});
 			var SelectGoods='select goods_count from bag where account='+Account+'goods_id='+AwardWeaponStar6[data.level];
 			var UpdateGoods='update bag set goods_count=godds_count+'+num+' where account='+Account+'and goods_id='+AwardWeaponStar6[data.level];
 			connection.query(SelectGoods,function(err,result){
@@ -1221,14 +1283,14 @@ io.on('connection', function (socket) {
 			});
 		}
 		if(data.flag=='9'){
-			connection.query(UpdateAwardStart9,0,funtion(err,result){
+			connection.query(UpdateAwardStart9,0,function(err,result){
 				if(err){
 					console.log('[UpdateAwardStart9 err]-',err.message);
 					return;
 				}
 			});
 			//把章节奖励信息告诉客户端并存入数据库中
-			skocket.emit('award_server',message:AwardWeaponStar9[data.level]);
+			skocket.emit('award_server',{message:AwardWeaponStar9[data.level]});
 			var SelectGoods='select goods_count from bag where account='+Account+'goods_id='+AwardWeaponStar9[data.level];
 			var UpdateGoods='update bag set goods_count=godds_count+'+num+' where account='+Account+'and goods_id='+AwardWeaponStar9[data.level];
 			connection.query(SelectGoods,function(err,result){
