@@ -24,11 +24,39 @@ CREATE TABLE IF NOT EXISTS `arrowskull` (
   PRIMARY KEY (`level`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- 正在导出表  reji.arrowskull 的数据：~1 rows (大约)
+-- 正在导出表  reji.arrowskull 的数据：~0 rows (大约)
 /*!40000 ALTER TABLE `arrowskull` DISABLE KEYS */;
 REPLACE INTO `arrowskull` (`level`, `hp`, `damage`) VALUES
 	(1, 50, 4);
 /*!40000 ALTER TABLE `arrowskull` ENABLE KEYS */;
+
+-- 导出  表 reji.award_level 结构
+CREATE TABLE IF NOT EXISTS `award_level` (
+  `account` int(11) DEFAULT NULL,
+  `level_id` int(11) DEFAULT NULL,
+  `star` int(11) DEFAULT NULL,
+  `award_star6` int(11) DEFAULT NULL,
+  `award_star9` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- 正在导出表  reji.award_level 的数据：~0 rows (大约)
+/*!40000 ALTER TABLE `award_level` DISABLE KEYS */;
+/*!40000 ALTER TABLE `award_level` ENABLE KEYS */;
+
+-- 导出  表 reji.bag 结构
+CREATE TABLE IF NOT EXISTS `bag` (
+  `account` varchar(50) NOT NULL,
+  `goods_id` int(11) NOT NULL,
+  `goods_count` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- 正在导出表  reji.bag 的数据：~3 rows (大约)
+/*!40000 ALTER TABLE `bag` DISABLE KEYS */;
+REPLACE INTO `bag` (`account`, `goods_id`, `goods_count`) VALUES
+	('15622184887', 342, 0),
+	('15622184887', 666, 0),
+	('15622184887', 3, 0);
+/*!40000 ALTER TABLE `bag` ENABLE KEYS */;
 
 -- 导出  表 reji.level_monster 结构
 CREATE TABLE IF NOT EXISTS `level_monster` (
@@ -37,7 +65,7 @@ CREATE TABLE IF NOT EXISTS `level_monster` (
   `count` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- 正在导出表  reji.level_monster 的数据：~3 rows (大约)
+-- 正在导出表  reji.level_monster 的数据：~2 rows (大约)
 /*!40000 ALTER TABLE `level_monster` DISABLE KEYS */;
 REPLACE INTO `level_monster` (`level_id`, `monster_id`, `count`) VALUES
 	(101, 1, 2),
@@ -110,66 +138,109 @@ CREATE TABLE IF NOT EXISTS `monsters` (
 -- 导出  表 reji.role 结构
 CREATE TABLE IF NOT EXISTS `role` (
   `role_id` int(11) NOT NULL,
-  `role_name` char(50) NOT NULL,
+  `role_name` text NOT NULL,
   `attack_id` int(11) NOT NULL,
   `skill1_id` int(11) NOT NULL,
   `skill2_id` int(11) NOT NULL,
   `skill_3_id` int(11) NOT NULL,
-  `portrait_id` int(11) NOT NULL,
-  `paint_id` int(11) NOT NULL,
-  `walk_aniid` int(11) NOT NULL,
-  `wait_aniid` int(11) NOT NULL,
-  `struck_aniid` int(11) NOT NULL,
-  `die_aniid` int(11) NOT NULL,
   PRIMARY KEY (`role_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- 正在导出表  reji.role 的数据：~2 rows (大约)
+-- 正在导出表  reji.role 的数据：~3 rows (大约)
 /*!40000 ALTER TABLE `role` DISABLE KEYS */;
-REPLACE INTO `role` (`role_id`, `role_name`, `attack_id`, `skill1_id`, `skill2_id`, `skill_3_id`, `portrait_id`, `paint_id`, `walk_aniid`, `wait_aniid`, `struck_aniid`, `die_aniid`) VALUES
-	(1, '2', 3, 4, 5, 6, 7, 8, 9, 10, 11, 12),
-	(2, '3', 4, 5, 6, 7, 8, 11, 111, 22, 32, 12);
+REPLACE INTO `role` (`role_id`, `role_name`, `attack_id`, `skill1_id`, `skill2_id`, `skill_3_id`) VALUES
+	(1, '薇薇安', 101, 102, 103, 104),
+	(2, '美杜莎', 201, 202, 203, 204),
+	(3, '莉可丽丝', 301, 302, 303, 304);
 /*!40000 ALTER TABLE `role` ENABLE KEYS */;
 
 -- 导出  表 reji.role_levels 结构
 CREATE TABLE IF NOT EXISTS `role_levels` (
-  `role_level` int(11) NOT NULL,
+  `role_id` int(11) NOT NULL,
   `role_grade` int(11) NOT NULL,
   `role_exp` int(11) NOT NULL,
   `hp` int(11) NOT NULL,
-  `hurt` int(11) NOT NULL
+  `damage` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- 正在导出表  reji.role_levels 的数据：~0 rows (大约)
+-- 正在导出表  reji.role_levels 的数据：~58 rows (大约)
 /*!40000 ALTER TABLE `role_levels` DISABLE KEYS */;
+REPLACE INTO `role_levels` (`role_id`, `role_grade`, `role_exp`, `hp`, `damage`) VALUES
+	(1, 1, 0, 200, 95),
+	(1, 2, 300, 400, 195),
+	(1, 3, 900, 800, 395),
+	(1, 4, 2700, 1200, 555),
+	(1, 5, 6500, 1600, 855),
+	(1, 6, 14000, 2000, 955),
+	(1, 7, 23000, 2300, 1155),
+	(1, 8, 34000, 2600, 1295),
+	(1, 9, 48000, 2900, 1455),
+	(1, 10, 64000, 3200, 1595),
+	(1, 11, 85000, 3500, 1755),
+	(1, 12, 100000, 3800, 1895),
+	(1, 13, 120000, 4100, 2055),
+	(1, 14, 140000, 4400, 2195),
+	(1, 15, 165000, 4700, 2355),
+	(1, 16, 195000, 5000, 2495),
+	(1, 17, 225000, 5200, 2655),
+	(1, 18, 265000, 5400, 2795),
+	(1, 19, 305000, 5600, 2955),
+	(1, 20, 355000, 5800, 3095),
+	(2, 1, 0, 250, 80),
+	(2, 2, 300, 500, 180),
+	(2, 3, 900, 1000, 360),
+	(2, 4, 2700, 1500, 540),
+	(2, 5, 6500, 1900, 600),
+	(2, 6, 14000, 2200, 720),
+	(2, 7, 23000, 2550, 840),
+	(2, 8, 34000, 2900, 960),
+	(2, 9, 48000, 3250, 1080),
+	(2, 10, 64000, 3600, 1200),
+	(2, 11, 85000, 3950, 1320),
+	(2, 12, 100000, 4300, 1440),
+	(2, 13, 120000, 4750, 1560),
+	(2, 14, 140000, 5100, 1680),
+	(2, 15, 165000, 5450, 1800),
+	(2, 16, 195000, 5800, 1920),
+	(2, 17, 225000, 6150, 2040),
+	(2, 18, 265000, 6500, 2160),
+	(2, 19, 305000, 6850, 2280),
+	(2, 20, 355000, 7200, 2400),
+	(3, 1, 0, 150, 130),
+	(3, 2, 300, 300, 250),
+	(3, 3, 900, 600, 500),
+	(3, 4, 2700, 1000, 800),
+	(3, 5, 6500, 1300, 1050),
+	(3, 6, 14000, 1550, 1250),
+	(3, 7, 23000, 1800, 1440),
+	(3, 8, 34000, 2050, 1630),
+	(3, 9, 48000, 2250, 1820),
+	(3, 10, 64000, 2450, 2010),
+	(3, 11, 85000, 2650, 2200),
+	(3, 12, 100000, 2850, 2390),
+	(3, 13, 120000, 3050, 2580),
+	(3, 14, 140000, 3250, 2770),
+	(3, 15, 165000, 3450, 2960),
+	(3, 16, 195000, 3650, 3150),
+	(3, 17, 225000, 3850, 3340),
+	(3, 18, 265000, 4050, 3530),
+	(3, 19, 305000, 4250, 3720),
+	(3, 20, 355000, 4450, 3910);
 /*!40000 ALTER TABLE `role_levels` ENABLE KEYS */;
 
 -- 导出  表 reji.skill 结构
 CREATE TABLE IF NOT EXISTS `skill` (
   `skill_id` int(11) NOT NULL,
-  `skill_name` int(11) NOT NULL,
-  `skill_cooldown` int(11) NOT NULL,
-  `skill_stages` int(11) NOT NULL,
-  `stage1_id` int(11) NOT NULL,
-  `stage1_hurt` int(11) NOT NULL,
-  `stage1_time` int(11) NOT NULL,
-  `stage2_id` int(11) NOT NULL,
-  `stage2_hurt` int(11) NOT NULL,
-  `stage2_time` int(11) NOT NULL,
-  `stage3_id` int(11) NOT NULL,
-  `stage3_hurt` int(11) NOT NULL,
-  `stage3_time` int(11) NOT NULL,
-  `stage4_id` int(11) NOT NULL,
-  `stage4_hurt` int(11) NOT NULL,
-  `stage4_time` int(11) NOT NULL,
-  `skill_hurt` int(11) NOT NULL,
+  `skill_name` text,
+  `skill_cooldown` int(11) DEFAULT NULL,
+  `skill_damage` int(11) DEFAULT NULL,
   PRIMARY KEY (`skill_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- 正在导出表  reji.skill 的数据：~1 rows (大约)
+-- 正在导出表  reji.skill 的数据：~0 rows (大约)
 /*!40000 ALTER TABLE `skill` DISABLE KEYS */;
-REPLACE INTO `skill` (`skill_id`, `skill_name`, `skill_cooldown`, `skill_stages`, `stage1_id`, `stage1_hurt`, `stage1_time`, `stage2_id`, `stage2_hurt`, `stage2_time`, `stage3_id`, `stage3_hurt`, `stage3_time`, `stage4_id`, `stage4_hurt`, `stage4_time`, `skill_hurt`) VALUES
-	(1, 43, 223, 43, 43, 43, 43, 43, 78, 7, 8, 6, 8, 6, 6, 5, 0);
+REPLACE INTO `skill` (`skill_id`, `skill_name`, `skill_cooldown`, `skill_damage`) VALUES
+	(101, '薇薇安普通攻击', 0, NULL);
 /*!40000 ALTER TABLE `skill` ENABLE KEYS */;
 
 -- 导出  表 reji.skill_art 结构
@@ -210,7 +281,7 @@ CREATE TABLE IF NOT EXISTS `start_levels` (
   `star_material` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- 正在导出表  reji.start_levels 的数据：~5 rows (大约)
+-- 正在导出表  reji.start_levels 的数据：~4 rows (大约)
 /*!40000 ALTER TABLE `start_levels` DISABLE KEYS */;
 REPLACE INTO `start_levels` (`start_level`, `star_material`) VALUES
 	(1, 0),
@@ -224,53 +295,100 @@ REPLACE INTO `start_levels` (`start_level`, `star_material`) VALUES
 CREATE TABLE IF NOT EXISTS `user` (
   `account` char(20) NOT NULL,
   `name` text,
-  `UserIp` text NOT NULL,
-  `LoginTime` text NOT NULL,
+  `UserIp` char(50) NOT NULL,
+  `LoginTime` char(50) NOT NULL,
   `SocketId` char(50) NOT NULL,
   `grade` int(11) unsigned DEFAULT NULL,
   `coin` int(11) unsigned DEFAULT NULL,
   `exp_now` int(11) unsigned DEFAULT NULL,
+  `hero1` int(11) DEFAULT NULL,
+  `hero2` int(11) DEFAULT NULL,
+  `hero3` int(11) DEFAULT NULL,
+  `cheat` int(11) unsigned DEFAULT NULL,
+  `OnlineTime` char(50) DEFAULT NULL,
   PRIMARY KEY (`account`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- 正在导出表  reji.user 的数据：~3 rows (大约)
+-- 正在导出表  reji.user 的数据：~19 rows (大约)
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-REPLACE INTO `user` (`account`, `name`, `UserIp`, `LoginTime`, `SocketId`, `grade`, `coin`, `exp_now`) VALUES
-	('11', NULL, '21', '002', '43', NULL, NULL, NULL),
-	('12', NULL, '21', '004', '321', NULL, NULL, NULL),
-	('13', NULL, '21', '32', '4324', NULL, NULL, NULL);
+REPLACE INTO `user` (`account`, `name`, `UserIp`, `LoginTime`, `SocketId`, `grade`, `coin`, `exp_now`, `hero1`, `hero2`, `hero3`, `cheat`, `OnlineTime`) VALUES
+	('11', NULL, '21', '1545223231467', 'EFR6jTlGO8mnHQUDAAAA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0'),
+	('12', NULL, '21', '1545224163234', 'kQlA7lrHbXgRU_tMAAAA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0'),
+	('13', NULL, '21', '32', '4324', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0'),
+	('13118834595', NULL, '1921685944', '2019-1-11 11:41:34', 'M5bD1e1zbuUrK5c-AABc', 0, 0, 0, 0, 0, 0, 0, '0'),
+	('13265943626', NULL, '19216855140', '1545375384522', 'A07aN5OQmTtaYjMvAAEE', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0'),
+	('13295286628', NULL, '19216858112', '2019-1-11 20:16:02', 'juuCjQJJUvTrMU1tAACv', NULL, NULL, NULL, 2, 3, 1, NULL, '0'),
+	('13399212356', NULL, '19216857194', '1545372019643', 'r1nHVXsh3e3CcCP8AACJ', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0'),
+	('13427500308', NULL, '19216856247', '1545375173775', 'sCl05D7RGTgD5pf4AADS', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0'),
+	('13631432614', '', '1921685323', '2019-1-11 20:04:11', 'O998PgHTNeaeCaBtAACT', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0'),
+	('13668924242', NULL, '19216859225', '1545375480227', 'pYHyg5czS-Veehz0AAEI', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0'),
+	('15014909352', NULL, '19216851145', '1545375761572', 'L65VFLtH13YqDuZ6AAEd', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0'),
+	('15521324468', NULL, '19216855204', '1545375157906', 'UHEjDraXCY-ygm8xAADC', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0'),
+	('15524020196', NULL, '19216853167', '2019-1-11 11:14:37', 'DrRUoQiI5tHdtWwaAAAk', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0'),
+	('15622184887', 'wuyepeng', '19216854129', '2019-1-11 17:39:59', 'X55UtZJG2eUoSI9zAAAG', 0, 0, 0, 1, 2, 3, 0, '20'),
+	('15622184888', NULL, '111', '2019-1-10 17:37:25', '111', 0, 0, 0, 0, 0, 0, 0, '177.97278027777782'),
+	('15625099261', NULL, '19216852217', '1545384852539', 'ofKLM0NjnjNsRqswAAEw', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0'),
+	('15920360647', NULL, '19216855248', '1545375108174', 'hwsXPe8SMCntCGiTAAC2', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0'),
+	('18192027860', '', '19216855130', '2019-1-11 20:14:11', 'CT4ML1jdgqou9PzhAACs', 0, 0, 0, 3, 2, 1, 0, '0'),
+	('18392886571', NULL, '19216835246', '2019-1-11 16:59:06', '_n7IhwQbQG9eIugjAABw', NULL, NULL, NULL, 7, 8, 9, NULL, '0'),
+	('3', '3', '3', '3', '3', 3, 3, 3, 3, 3, 3, 3, '0');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 
 -- 导出  表 reji.users_roles 结构
 CREATE TABLE IF NOT EXISTS `users_roles` (
-  `account` int(16) NOT NULL,
+  `account` char(50) NOT NULL,
   `role_id` int(11) NOT NULL,
   `role_grade` int(11) NOT NULL,
-  `role_level` int(11) NOT NULL,
-  `breakthrough_level` int(11) NOT NULL,
-  `hp` int(11) NOT NULL,
-  `hurt` int(11) NOT NULL,
-  `weapon_id` int(11) DEFAULT NULL,
-  `weapon_level` int(11) DEFAULT NULL
+  `role_exp` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- 正在导出表  reji.users_roles 的数据：~3 rows (大约)
+-- 正在导出表  reji.users_roles 的数据：~24 rows (大约)
 /*!40000 ALTER TABLE `users_roles` DISABLE KEYS */;
-REPLACE INTO `users_roles` (`account`, `role_id`, `role_grade`, `role_level`, `breakthrough_level`, `hp`, `hurt`, `weapon_id`, `weapon_level`) VALUES
-	(1870096555, 1, 1, 1, 1, 1, 1, 1, 1),
-	(1870096555, 2, 2, 2, 2, 2, 2, 4, 3),
-	(1870096555, 2, 3, 54, 542, 34, 324, 0, 0);
+REPLACE INTO `users_roles` (`account`, `role_id`, `role_grade`, `role_exp`) VALUES
+	('15622184887', 1, 15, 179500),
+	('15622184887', 2, 15, 179500),
+	('15622184887', 3, 15, 175500),
+	('13295286628', 1, 1, 0),
+	('13295286628', 2, 1, 0),
+	('13295286628', 3, 1, 0),
+	('18392886571', 1, 1, 0),
+	('18392886571', 2, 1, 0),
+	('18392886571', 3, 1, 0),
+	('13118834595', 1, 1, 0),
+	('13118834595', 2, 1, 0),
+	('13118834595', 3, 1, 0),
+	('13631432614', 1, 1, 0),
+	('13631432614', 2, 1, 0),
+	('13631432614', 3, 1, 0),
+	('18192027860', 1, 1, 0),
+	('18192027860', 2, 1, 0),
+	('18192027860', 3, 1, 0),
+	('15524020196', 1, 1, 0),
+	('15524020196', 2, 1, 0),
+	('15524020196', 3, 1, 0);
 /*!40000 ALTER TABLE `users_roles` ENABLE KEYS */;
 
 -- 导出  表 reji.user_level 结构
 CREATE TABLE IF NOT EXISTS `user_level` (
-  `account` int(11) NOT NULL,
-  `level_id` int(11) NOT NULL,
-  `star` int(11) NOT NULL
+  `account` char(50) NOT NULL,
+  `level_id` char(50) NOT NULL,
+  `star` int(11) NOT NULL,
+  `star1` int(11) DEFAULT NULL,
+  `star2` int(11) DEFAULT NULL,
+  `star3` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- 正在导出表  reji.user_level 的数据：~0 rows (大约)
+-- 正在导出表  reji.user_level 的数据：~8 rows (大约)
 /*!40000 ALTER TABLE `user_level` DISABLE KEYS */;
+REPLACE INTO `user_level` (`account`, `level_id`, `star`, `star1`, `star2`, `star3`) VALUES
+	('11', '1_1', 3, NULL, NULL, NULL),
+	('11', '1_2', 3, NULL, NULL, NULL),
+	('15622184887', '1_1', 3, NULL, NULL, NULL),
+	('15622184887', '1_2', 3, NULL, NULL, NULL),
+	('15622184887', '1_3', 3, NULL, NULL, NULL),
+	('15622184887', '2_1', 3, NULL, NULL, NULL),
+	('15622184887', '2_2', 2, NULL, NULL, NULL),
+	('15622184887', '2_3', 3, 1, 1, 1);
 /*!40000 ALTER TABLE `user_level` ENABLE KEYS */;
 
 -- 导出  表 reji.weapon 结构
@@ -283,7 +401,7 @@ CREATE TABLE IF NOT EXISTS `weapon` (
   `weapon_price` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- 正在导出表  reji.weapon 的数据：~27 rows (大约)
+-- 正在导出表  reji.weapon 的数据：~25 rows (大约)
 /*!40000 ALTER TABLE `weapon` DISABLE KEYS */;
 REPLACE INTO `weapon` (`weapon_id`, `weapon_name`, `weapon_grade`, `weapon_hurt`, `weapon_leve`, `weapon_price`) VALUES
 	(101, '木枝', '蓝', 0, 1, NULL),
