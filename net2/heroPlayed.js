@@ -9,12 +9,15 @@ async function heroInformation(Account){
 	var HeroInformationArray=new Array();
 	//首先查询玩家有哪些英雄users_roles
 	let SelectOwnHeroResult=await query(userSQL.SelectOwnHero,Account);
-	//console.log(SelectOwnHeroResult);
+	console.log('查询玩家有哪些英雄',SelectOwnHeroResult);
+	console.log('chanfdu',SelectOwnHeroResult.length);
 	for(var i=0;i<SelectOwnHeroResult.length;i++){
 		//查找该英雄升级到下一级所需经验值
 		var SHNGE=[SelectOwnHeroResult[i].role_id,SelectOwnHeroResult[i].role_grade+1];
+		//console.log('SHNGE',SHNGE);
 		//console.log(SelectOwnHeroResult[i].role_id);
 		let SelectHeroNextGradeExp= await query(userSQL.SelectHeroNextGradeExp,SHNGE);
+		//console.log('下一等级需要的经验',SelectHeroNextGradeExp);
 		//通过英雄id和等级 查找该英雄生命值和伤害值
 		var SHHD=[SelectOwnHeroResult[i].role_id,SelectOwnHeroResult[i].role_grade];
 		let SelectHeroHpDamageResult=await query(userSQL.SelectHeroHpDamage,SHHD);
@@ -28,8 +31,9 @@ async function heroInformation(Account){
 		temp.push(SelectHeroHpDamageResult[0].damage);
 		HeroInformationArray.push(temp);	 
 	}
+	console.log('英雄 信息',HeroInformationArray);
 	return HeroInformationArray;
-	//console.log(HeroInformationArray);
+	
 }
 
 

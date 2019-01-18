@@ -15,9 +15,9 @@ async function levelStar(Account){
 //查询大关的星级，用于告诉客户端
 async function selectLevelStarSum(Account,LevelId){
 	//查询每一个大关所获得的星级
-	var temp=parseInt(LevelId);
-	console.log(temp);
-	var SBL=[Account,temp];
+	//var temp=parseInt(LevelId);
+	console.log('大关的id',LevelId);
+	var SBL=[Account,LevelId];
 	console.log(SBL);
 	let SelectBigLevelStarResult=await query(userSQL.SelectBigLevelStar,SBL);
 	console.log(SelectBigLevelStarResult);

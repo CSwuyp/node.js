@@ -106,6 +106,8 @@ io.on('connection',function(socket){
 		getData();
 		
 	});
+
+	
 	
 	//关卡结算
 	socket.on('battle_client',function(data){
@@ -119,7 +121,12 @@ io.on('connection',function(socket){
 				socket.emit('battle_server',{BattleHero:'404'});
 			}else{
 				console.log('出战队列为',result);
-				socket.emit('battle_server',{BattleHero:reuslt});
+				socket.emit('battle_server',{BattleHero:result});
+				console.log('data.victory',data.victory);
+				if(data.victory=='true'){
+					console.log('战斗胜利结算');
+					getData();
+				}
 			}
 		}
 		async function getData(){
@@ -134,13 +141,14 @@ io.on('connection',function(socket){
 			let DataRole2=await Battle.role2Grade(data.level,Account,data.time,data.QTE,data.StrikeCount,data.RoleDeath );
 			//角色一等级经验变化
 			let DataRole3=await Battle.role3Grade(data.level,Account,data.time,data.QTE,data.StrikeCount,data.RoleDeath );
-			Battle.levelStarSQL(data.level,Account,data.time,data.QTE,data.StrikeCount,data.RoleDeath);
+			let hero=await Battle.levelStarSQL(data.level,Account,data.time,data.QTE,data.StrikeCount,data.RoleDeath);
 			
 			console.log('玩家在该关卡中所获星级:',DataStar);
 			console.log('角色1等级经验变化',DataRole1);
 			console.log('角色2等级经验变化',DataRole2);
 			console.log('角色3等级经验变化',DataRole3);
-			socket.emit('battle_server',{Star:DataStar,role1:DataRole1,role2:DataRole2,role3:DataRole3});
+			console.log('玩家获得新英雄',hero);
+			socket.emit('battle_server',{Star:DataStar,role1:DataRole1,role2:DataRole2,role3:DataRole3,GainHero:hero});
 		}
 		//如果战斗胜利就进行关卡结算,如果战斗失败就不进行关卡结算，只是把玩家的出战队列，进入关卡时间，角色等级记录到日志中
 		if(Account){
@@ -154,23 +162,23 @@ io.on('connection',function(socket){
 	
 	//各个关卡对应星级
 	socket.on('LevelStar_client',function(data){
+		console.log('LevelStar_client',data);
 		//告诉玩家大关的星级
 		let BigLevelStar=new Array();
 		
 		async function getData(){
 			//大关星级[第一大关星级，第二大关星级]
-			for(var i=1;i<=2;i++){
-				let DataList=await LevelStar.selectLevelStarSum(Account,i);
-				BigLevelStar.push(DataList);
+			for(var i=1;i<=3;i++){
+				let Big=await LevelStar.selectLevelStarSum(Account,i);
+				BigLevelStar.push(Big);
 			}
+			console.log('LevelStar_client1',BigLevelStar);
 			//[level_id,star,star1,star2,star3];
 			let DataList=await LevelStar.levelStar(Account);
-			
+			console.log('LevelStar_client2',DataList)
 			socket.emit('LevelStar_server',{BigLevelStar:BigLevelStar,small:DataList})
 		}
-		
-		
-		if(Account){
+		if(data.flag=='1'){
 			getData();
 		}
 
@@ -178,10 +186,36 @@ io.on('connection',function(socket){
 	
 	//出战队列
 	socket.on('HeroPlayed_client',function(data){
+		
+		//console.log('进入HeroPlay_client',Account);
+		if(data.flag=='1'){
+			console.log(data);
+			userAccount();
+		}
+		
 		if(Account){
-			console.log(data.hero1,data.hero2,data.hero3);
-			console.log(Account);
-			HeroPlayed.heroPlayed(Account,data.hero1,data.hero2,data.hero3);
+			if(data.hero1){
+				console.log(data.hero1,data.hero2,data.hero3);
+				console.log(Account);
+				HeroPlayed.heroPlayed(Account,data.hero1,data.hero2,data.hero3);
+			}
+		}
+		
+		async function userAccount(){
+			// console.log('Ip',Ip);
+			// let SelectAccountResult = await query( userSQL.SelectAccount,Ip);
+			//Account= await SelectAccountResult[0].account;
+			console.log('userAccount',Account);
+			if(Account){
+				heroPlay(Account);
+			}
+		}
+		async function heroPlay(Account){
+			let SelectAccountResult = await query( userSQL.SelectAccount,Ip);
+			Account= await SelectAccountResult[0].account;
+			let HeroPlayResult=await query(userSQL.SelectHeroPlay,Account);
+			console.log('出战队列',HeroPlayResult);
+			socket.emit('HeroPlayed_server',{HeroPlay:HeroPlayResult});
 		}
 		
 		/*if(Account){
@@ -226,21 +260,25 @@ io.on('connection',function(socket){
 	
 	//星级奖励
 	socket.on('awardLevel_client',function(data){
-		
+		heroInformation
 	});
 	//告诉客户端所拥有的英雄和对应英雄的各种属性
 	socket.on('hero_client',function(data){
+		console.log('hero_client',data);
 		console.log('hero:');
 		async function getData(){
-			let SelectAccountResult = await query( userSQL.SelectAccount,Ip);
-			Account= await SelectAccountResult[0].account;
-			if(Account){
-				let dataList=await HeroPlayed.heroInformation(Account);
-				console.log(dataList);
-				socket.emit('hero_server',{HeroInformation:dataList});
-			}
+			// let SelectAccountResult = await query( userSQL.SelectAccount,Ip);
+			// Account= await SelectAccountResult[0].account;
+			console.log('hero_client Account',Account);
+			let dataList=await HeroPlayed.heroInformation(Account);
+			console.log('英雄的各种属性',dataList);
+			socket.emit('hero_server',{HeroInformation:dataList});
 		}
-		getData();
+		if(data.flag=='1'){
+			console.log('hero_client 中帐号不为空',Account);
+			getData();
+		}
+		
 	});
 	
 	//记录玩家离开游戏的时间

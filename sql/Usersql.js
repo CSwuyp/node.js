@@ -38,7 +38,7 @@ var UserSQL = {
 	SelectHeroNextGradeExp:'select role_exp from role_levels where role_id=? and role_grade=?',
 	SelectHeroHpDamage:'select hp,damage from role_levels where role_id=? and role_grade=?',
 	AddLevelStar:'insert into user_level(account,level_id,star,star1,star2,star3) value(?,?,?,?,?,?)',
-	UpdateLevelStar:'update user_level set star=?,star1=?star2=?,star3=? where level_id=? and account=?',
+	UpdateLevelStar:'update user_level set star=?,star1=?,star2=?,star3=? where level_id=? and account=?',
 	UserLoginTime:'select LoginTime from user where account=?',
 	UpdateUserOnlineTime:'update user set OnlineTime=OnlineTime+? where account=?',
 	AddUserName:'update user set name=? where account=?',
@@ -47,6 +47,8 @@ var UserSQL = {
 	SelectLevelStarSum:'select *from user_level where account=? and level_id like ?',
 	UpdateBigLevelStar:'update award_level set star=star+? where account=? and level_id=?',
 	SelectBigLevelStar:'select star from award_level where account=? and level_id=?',
+	SelectHeroPlay:'select hero1,hero2,hero3 from user where account=?',
+	AddBigLevelStar:'insert into award_level(account,level_id,star,award_star6,award_star9) value(?,?,?,?,?)',
 	};
 
 module.exports = UserSQL;

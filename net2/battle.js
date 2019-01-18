@@ -59,14 +59,14 @@ async function star(LevelId,Account,Time,QTE,strike,death){
 			arraystarflag.push('队伍中含有薇薇安');
 		}
 		//判断是否满足第三颗星，因为考虑到网络存在延时所以判断通关时间应该在客户端那边进行计时比较可靠
-		if(Time<10){
+		if(Time<=200){
 			arraystarflag.push(1);
-			arraystarflag.push('xx秒内过关');
+			arraystarflag.push('200秒内过关');
 			star+=1;
 		}
 		else{
 			arraystarflag.push(0);
-			arraystarflag.push('xx秒内过关');
+			arraystarflag.push('200秒内过关');
 		}
 	}
 	if(LevelId=='1_2'){
@@ -91,19 +91,19 @@ async function star(LevelId,Account,Time,QTE,strike,death){
 		}
 		var star3=0;
 		//判断是否满足第三颗星
-		if(Time<10){
+		if(Time<=200){
 			star3=1;
 		}else{
 			star3=0;
 		}
 		if(star3==1){
 			arraystarflag.push(1);
-			arraystarflag.push('xx秒内通关');
+			arraystarflag.push('200秒内通关');
 			star+=1;
 		}
 		else{
 			arraystarflag.push(0);
-			arraystarflag.push('xx秒内通关');
+			arraystarflag.push('200秒内通关');
 		}
 	}
 	if(LevelId=='1_3'){
@@ -165,19 +165,19 @@ async function star(LevelId,Account,Time,QTE,strike,death){
 		}
 		var star3=0;
 		//判断是否满足第三颗星
-		if(Time<=10){
+		if(Time<=200){
 			star3=1;
 		}else{
 			star3=0;
 		}
 		if(star3==1){
 			arraystarflag.push(1);
-			arraystarflag.push('xx秒内过关');
+			arraystarflag.push('200秒内过关');
 			star+=1;
 		}
 		else{
 			arraystarflag.push(0);
-			arraystarflag.push('xx秒内过关');
+			arraystarflag.push('200秒内过关');
 		}
 	}
 	if(LevelId=='2_2'){
@@ -185,9 +185,9 @@ async function star(LevelId,Account,Time,QTE,strike,death){
 		var star2=0;
 		//判断是否满足第二颗星
 		if(strike<=40){
-			star3=1;
+			star2=1;
 		}else{
-			star3=0;
+			star2=0;
 		}
 		if(star2==1){
 			arraystarflag.push(1);
@@ -200,19 +200,19 @@ async function star(LevelId,Account,Time,QTE,strike,death){
 		}
 		var star3=0;
 		//判断是否满足第三颗星
-		if(Time<=10){
+		if(Time<=200){
 			star3=1;
 		}else{
 			star3=0;
 		}
 		if(star3==1){
 			arraystarflag.push(1);
-			arraystarflag.push('xx秒内过关');
+			arraystarflag.push('200秒内过关');
 			star+=1;
 		}
 		else{
 			arraystarflag.push(0);
-			arraystarflag.push('xx秒内过关');
+			arraystarflag.push('200秒内过关');
 		}
 	}
 	if(LevelId=='2_3'){
@@ -275,19 +275,19 @@ async function star(LevelId,Account,Time,QTE,strike,death){
 		}
 		var star3=0;
 		//判断是否满足第三颗星
-		if(Time<=10){
+		if(Time<=200){
 			star3=1;
 		}else{
 			star3=0;
 		}
 		if(star3==1){
 			arraystarflag.push(1);
-			arraystarflag.push('xx秒内过关');
+			arraystarflag.push('200秒内过关');
 			star+=1;
 		}
 		else{
 			arraystarflag.push(0);
-			arraystarflag.push('xx秒内过关');
+			arraystarflag.push('200秒内过关');
 		}
 	}
 	
@@ -311,19 +311,19 @@ async function star(LevelId,Account,Time,QTE,strike,death){
 		}
 		var star3=0;
 		//判断是否满足第三颗星
-		if(Time<=10){
+		if(Time<=200){
 			star3=1;
 		}else{
 			star3=0;
 		}
 		if(star3==1){
 			arraystarflag.push(1);
-			arraystarflag.push('xx秒内过关');
+			arraystarflag.push('200秒内过关');
 			star+=1;
 		}
 		else{
 			arraystarflag.push(0);
-			arraystarflag.push('xx秒内过关');
+			arraystarflag.push('200秒内过关');
 		}
 	}
 	
@@ -383,19 +383,19 @@ async function star(LevelId,Account,Time,QTE,strike,death){
 		}
 		var star3=0;
 		//判断是否满足第三颗星
-		if(Time<=10){
+		if(Time<=200){
 			star3=1;
 		}else{
 			star3=0;
 		}
 		if(star3==1){
 			arraystarflag.push(1);
-			arraystarflag.push('xx秒内过关');
+			arraystarflag.push('200秒内过关');
 			star+=1;
 		}
 		else{
 			arraystarflag.push(0);
-			arraystarflag.push('xx秒内过关');
+			arraystarflag.push('200秒内过关');
 		}
 	}
 	
@@ -419,19 +419,19 @@ async function star(LevelId,Account,Time,QTE,strike,death){
 		}
 		var star3=0;
 		//判断是否满足第三颗星
-		if(Time<=40){
+		if(Time<=200){
 			star3=1;
 		}else{
 			star3=0;
 		}
 		if(star3==1){
 			arraystarflag.push(1);
-			arraystarflag.push('xx秒内过关');
+			arraystarflag.push('200秒内过关');
 			star+=1;
 		}
 		else{
 			arraystarflag.push(0);
-			arraystarflag.push('xx秒内过关');
+			arraystarflag.push('200秒内过关');
 		}
 	}
 	
@@ -725,6 +725,19 @@ async function battleHero(Account){
 	return SelectHeroResult;
 }
 
+
+//获得新英雄
+async function gainHero(LevelId,Account){
+	//如果首通1_3则可获得4号英雄
+	if(LevelId=='1_3'){
+		var AHR=[Account,4,1,0];
+		let AddHeroResult=await query(userSQL.AddHero,AHR);
+		return 4;
+	}else{
+		return 0;
+	}
+}
+
 //更新关卡星级，如果是首通则直接插入，如果不是首通则更新关卡新的星级
 async function levelStarSQL(LevelId,Account,Time,QTE,strike,death){
 	//先判断是否是首通
@@ -733,8 +746,28 @@ async function levelStarSQL(LevelId,Account,Time,QTE,strike,death){
 	
 	if(isFirstPassLevel==1){
 		//首通
+		//小关
 		var ASR=[Account,LevelId,LevelStar[6],LevelStar[0],LevelStar[2],LevelStar[4]];
 		let AddLevelStarResult= await query(userSQL.AddLevelStar,ASR);
+		
+		//如果是1_3首通则可获得一个英雄
+		let GainHero= await gainHero(LevelId,Account);
+			//大关
+		if(LevelId=='1_1'||LevelId=='2_1'||LevelId=='3_1'){
+			var temp=parseInt(LevelId);
+			var ABLR=[Account,temp,LevelStar[6],0,0]
+			console.log('大关星级添加',ABLR);
+			let AddBigLevelStarResult=await query(userSQL.AddBigLevelStar,ABLR);
+			console.log('大关首通星级更新',AddBigLevelStarResult);
+		}else{
+			var temp=parseInt(LevelId);
+			var UBL1=[LevelStar[6],Account,temp];
+			console.log('大关星级更新',UBL1);
+			let UpdateBigLevelStarResult1=await query(userSQL.UpdateBigLevelStar,UBL1);
+			console.log('大关非首通星级更新',UpdateBigLevelStarResult1);
+		}
+		return GainHero;
+		
 	}else{
 		//如果当前所获星级高于历史星级则把当前所获星级写入数据库
 		//查询战斗前该关卡的星级
@@ -757,6 +790,7 @@ async function levelStarSQL(LevelId,Account,Time,QTE,strike,death){
 			var ULSF=[LevelStar[0],LevelStar[2],LevelStar[4],LevelId,Account];
 			let UpdateLevelStarFlagResult=await query(userSQL.UpdateLevelStarFlag,ULSF);
 		}
+		return 0;
 	}
 }
 
