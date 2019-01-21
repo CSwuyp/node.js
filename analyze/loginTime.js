@@ -12,7 +12,7 @@ async function UserOnLineTime(Account){
 	let LoginTimeResult= await query(userSQL.UserLoginTime,Account);
 	
 	var Temp = LoginTimeResult[0].LoginTime.replace(/\-/g, "/");
-	var date = new Date(d1)
+	var date = new Date(Temp)
 	console.log('上次登录时间',date);
 	//得到这次玩家在线时长
 	var time=parseInt(myDate-date) / 1000 / 60/60;
